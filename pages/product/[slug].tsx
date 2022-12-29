@@ -7,6 +7,7 @@ import { Product } from '../../components'
 import { StateTypes } from '../../context/reducers'
 import { useAppContext } from '../../context/StateContext'
 import { client, urlFor } from '../../lib/client'
+import getStripe from '../../lib/getStripe'
 
 
 export const getStaticPaths = async () => {
@@ -17,7 +18,7 @@ export const getStaticPaths = async () => {
       }
     }`
   )
-  const paths = products.map((product: Product) => ({
+  const paths = products.map((product: ProductType) => ({
     params: { slug: product.slug.current }
   }))
 
@@ -37,7 +38,7 @@ export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
     `*[_type == "product"]`
   ) 
 
-  console.dir({ product }, { depth: null })
+  // console.dir({ product }, { depth: null })
   return {
     props: {
       product,
@@ -49,6 +50,33 @@ export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
 const ProductDetails = ({ product, products }: { product: ProductType, products: ProductType[] }) => {
   const [index, setIndex] = React.useState(0)
   const context = useAppContext()
+
+  async function handleBuyNow() {
+    const stripe = await getStripe()
+    const response = await fetch('/api/stripe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify([{
+        product,
+        quantity: context.state.quantity
+      }])
+    })
+    // console.log({ response })
+    if (response.status === 500) {
+      console.error(response)
+      return
+    }
+    const data = await response.json()
+
+    toast.loading('Redirecting to checkout...')
+    try {
+      await stripe?.redirectToCheckout({ sessionId: data.id })
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
     <div>
       <div className="product-detail-container">
@@ -63,11 +91,11 @@ const ProductDetails = ({ product, products }: { product: ProductType, products:
           <div className="small-images-container">
             {product.image.map((image, i) => (
               <img 
+                key={i}
                 src={urlFor(image)}
                 alt={product.name}
                 className={`small-image${index === i ? ' selected-image' : ''}`}
                 onMouseEnter={() => setIndex(i)}
-                key={i}
               />
             ))}
           </div>
@@ -122,7 +150,9 @@ const ProductDetails = ({ product, products }: { product: ProductType, products:
             >
               Add to Cart
             </button>
-            <button type="button" className="buy-now">
+            <button type="button" className="buy-now"
+              onClick={handleBuyNow}
+            >
               Buy Now
             </button>
           </div>

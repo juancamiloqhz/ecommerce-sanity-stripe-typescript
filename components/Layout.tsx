@@ -7,8 +7,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className='layout'>
       <Head>
-        <title>Juan Camilo Store</title>
-        <meta name="description" content="Juan Camilo Store - Next.js" />
+        <title>Ecommerce Store</title>
+        <meta name="description" content="Ecommerce Store - Next.js" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

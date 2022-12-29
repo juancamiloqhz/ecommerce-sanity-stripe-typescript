@@ -10,7 +10,7 @@ const Navbar = () => {
   return (
     <div className="navbar-container">
       <p className='logo'>
-        <Link href='/'>Juan Camilo Store</Link>
+        <Link href='/'>Ecommerce Store</Link>
       </p>
       <button className="cart-icon" type='button' onClick={
         () => context.dispatch({ type: StateTypes.ToggleCart, payload: !context.state.showCart })

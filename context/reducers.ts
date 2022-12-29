@@ -19,11 +19,14 @@ export enum StateTypes {
   AddToCart = 'ADD_ITEM',
   AddToTotalPrice = 'ADD_TO_TOTAL_PRICE',
   DeleteFromTotalPrice = 'DELETE_FROM_TOTAL_PRICE',
+  ClearTotalPrice = 'CLEAR_TOTAL_PRICE',
   AddToTotalQuantity = 'ADD_TO_TOTAL_QUANTITY',
   DeleteFromTotalQuantity = 'DELETE_FROM_TOTAL_QUANTITY',
+  ClearTotalQuantity = 'CLEAR_TOTAL_QUANTITY',
   SetQuantity = 'SET_QUANTITY',
   AddOneToCartItem = 'ADD_ONE_TO_CART_ITEM',
   DeleteOneFromCartItem = 'DELETE_ONE_FROM_CART_ITEM',
+  ClearCart = 'CLEAR_CART',
 }
 
 type ShowCartPayload = {
@@ -51,6 +54,7 @@ type CartItemsPayload = {
   [StateTypes.AddToCart] : CartItem;
   [StateTypes.AddOneToCartItem]: CartItem;
   [StateTypes.DeleteOneFromCartItem]: CartItem;
+  [StateTypes.ClearCart]: null;
 }
 
 export type AddToCartActions = ActionMap<CartItemsPayload>[keyof ActionMap<CartItemsPayload>];
@@ -111,6 +115,8 @@ export const cartItemsReducer = (state: CartItem[], action: Actions) => {
       return [
         ...state
       ]
+    case StateTypes.ClearCart:
+      return [];
     default:
       return state;
   }
@@ -119,6 +125,7 @@ export const cartItemsReducer = (state: CartItem[], action: Actions) => {
 type TotalPricePayload = {
   [StateTypes.AddToTotalPrice]: number;
   [StateTypes.DeleteFromTotalPrice]: number;
+  [StateTypes.ClearTotalPrice]: null;
 }
 
 export type TotalPriceActions = ActionMap<TotalPricePayload>[keyof ActionMap<TotalPricePayload>];
@@ -129,6 +136,8 @@ export const totalPriceReducer = (state: number, action: Actions) => {
       return state + action.payload;
     case StateTypes.DeleteFromTotalPrice:
       return state - action.payload;
+    case StateTypes.ClearTotalPrice:
+      return 0;
     default:
       return state;
   }
@@ -137,6 +146,7 @@ export const totalPriceReducer = (state: number, action: Actions) => {
 type TotalQuantitiesPayload = {
   [StateTypes.AddToTotalQuantity]: number;
   [StateTypes.DeleteFromTotalQuantity]: number;
+  [StateTypes.ClearTotalQuantity]: null;
 }
 
 export type TotalQuantitiesActions = ActionMap<TotalQuantitiesPayload>[keyof ActionMap<TotalQuantitiesPayload>];
@@ -147,6 +157,8 @@ export const totalQuantitiesReducer = (state: number, action: Actions) => {
       return state + action.payload;
     case StateTypes.DeleteFromTotalQuantity:
       return state - action.payload;
+    case StateTypes.ClearTotalQuantity:
+      return 0;
     default:
       return state;
   }

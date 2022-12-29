@@ -15,6 +15,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if(req.method === 'POST') {
+    // console.log(req.body);
     try {
       // Create Checkout Sessions from body params.
       const session = await stripe.checkout.sessions.create({
@@ -25,18 +26,32 @@ export default async function handler(
           { shipping_rate: 'shr_1MJ4b1FZE31pDLocmZxra4I2' },
           { shipping_rate: 'shr_1MJ4cdFZE31pDLocxFCZFoEn' },
         ],
-        line_items: [
-          {
-            // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-            price: '{{PRICE_ID}}',
-            quantity: 1,
-          },
-        ],
+        line_items: req.body.map((cartItem: any) => {
+          const { product } = cartItem;
+          const image = product.image[0].asset._ref;
+          const newImage = image.replace('image-', 'https://cdn.sanity.io/images/0c2ea6eu/production/').replace('-webp', '.webp');
+          // console.log({newImage});
+          return {
+            price_data: {
+              currency: 'usd',
+              product_data: {
+                name: product.name,
+                images: [newImage],
+              },
+              unit_amount: product.price, // in cents
+            },
+            quantity: cartItem.quantity,
+            adjustable_quantity: {
+              enabled: true,
+              minimum: 1,
+            },
+          }
+        }),
         mode: 'payment',
-        success_url: `${req.headers.origin}/?success=true`,
-        cancel_url: `${req.headers.origin}/?canceled=true`,
+        success_url: `${req.headers.origin}/success`,
+        cancel_url: `${req.headers.origin}/canceled`,
       });
-      res.redirect(303, session.url);
+      res.status(200).json(session);
     } catch (error: any) {
       res.status(error.statusCode || 500).json(error.message)
     }
